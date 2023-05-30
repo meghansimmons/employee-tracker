@@ -24,3 +24,13 @@ JOIN role
 ON  role.id = employee.role_id 
 JOIN department
 ON  department.id = role.department_id;
+
+
+CONCAT(m.first_name, ' ', m.last_name) AS manager
+LEFT JOIN employee m on m.id = employee.manager_id
+
+SELECT  e.last_name AS Employee, 
+        m.last_name AS Manager 
+FROM employees e 
+JOIN employees m 
+ON e.manager_id = m.id;

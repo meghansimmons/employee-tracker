@@ -16,6 +16,7 @@ To begin, run the following command in the terminal to invoke the application.
 ```node server.js```
 
 ## Credits
+https://codesandbox.io/s/mysql-employee-tracker-sv5ko?file=/index.js:2700-2762
 
 
 ## License
