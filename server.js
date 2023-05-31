@@ -1,3 +1,4 @@
+//package used to keep sensitive data protected
 require('dotenv').config()
 
 // packages needed for this application
@@ -258,7 +259,7 @@ function viewAllManagers(){
   });
 };
 
-// Calls the function init() after the index.js is run in the integrated terminal
+// Calls the function init() 
 init();
 
 app.listen(PORT, () => {});
