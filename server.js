@@ -45,33 +45,24 @@ function init() {
 inquirer
 .prompt(questions)
 .then((responses) => {
-  // console.log(responses.license);
   switch(responses.company) {
     case 'View All Employees':
-      console.log();
       viewAllEmployees();
-      console.log();
       break;
     case 'Add Employee':
       addEmployee();
       break;
     case 'Update Employee Role':
-      console.log();
       updateEmployee();
-      console.log();
       break; 
     case 'View All Roles':
-      console.log();
       viewAllRoles();
-      console.log();
       break;
     case 'Add Role':
       addRole();
       break;
     case 'View All Departments':
-      console.log();
       viewAllDepartments();
-      console.log();
       break;     
     case 'Add Department':
       addDepartment();
@@ -82,16 +73,22 @@ inquirer
 });
 };
 
+
 function viewAllEmployees(){
   const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT (m.first_name, ' ', m.last_name) AS manager FROM employee LEFT JOIN employee m ON m.id = employee.manager_id JOIN role ON role.id = employee.role_id JOIN department ON department.id = role.department_id`;
-  
-  db.query(sql, function (err, result, fields){
-    console.table(result);
+  db.promise().query(sql)
+  .then( ([allEmployees,fields]) => {
+    console.table(allEmployees);
+  })
+  .then(() => {
+    init();
   });
-  init();
 };
 
 function addEmployee(){
+  const sql = `SELECT title AS name, id AS value FROM role`;
+  db.promise().query(sql)
+  .then(([roles,fields]) => {
   inquirer
     .prompt([  
       {
@@ -108,63 +105,89 @@ function addEmployee(){
         type: 'list',
         name: 'role',
         message: 'What is the employee\'s role?',
-        choices: ['Sales Lead',
-        'Lead Engineer',
-        'Customer Service']
-        }
+        choices: roles
+      }
     ])
     .then((newEmployee) => {
-      console.log(`Added ${newEmployee.first} ${newEmployee.last} to the database`);
-      const sql = `INSERT INTO employee (first_name, last_name, role_id) VALUES ('${newEmployee.first}', '${newEmployee.last}', 9)`;
-      db.query(sql, function (err, result, fields){
-      });
-    })
-    .then(() => {
-      init();
-    });
-};
-
-
-
-function addDepartment(){
-  inquirer
-    .prompt(  
-      {
-      type: 'input',
-      name: 'department',
-      message: 'What is the name of the department?'
+      const sql = `SELECT CONCAT(first_name, " ", last_name) AS name, id AS value FROM employee`;
+      db.promise().query(sql)
+      .then(([manager,fields]) => {
+        inquirer
+         .prompt([ 
+         {
+            type: 'list',
+            name: 'manager',
+            message: 'Who is the employee\'s manager?',
+            choices: manager
+          }
+        ])
+        .then((newManager) => {
+          console.log(`Added ${newEmployee.first} ${newEmployee.last} to the database`);
+          const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${newEmployee.first}', '${newEmployee.last}', '${newEmployee.role}', '${newManager.manager}')`;
+          db.promise().query(sql)
+        })
+        .then(() => {
+         init();
+        })
       })
-    .then((newDepartment) => {
-      console.log(`Added ${newDepartment.department} to the database`);
-      const sql = `INSERT INTO department (name) VALUES ('${newDepartment.department}')`;
-      db.query(sql, function (err, result, fields){
-      });
     })
-    .then(() => {
-      init();
-    });
+  });
 };
 
-function updateEmployee (){
-  const sql = `SELECT e.last_name AS Employee, m.last_name AS Manager FROM employee e JOIN employee m ON e.manager_id = m.id`;
-  db.query(sql, function (err, result) {
-    if (err) {
-      res.statusMessage(400).json({ error: res.message });
-    } else {
-      console.table(result);
-    }
+function updateEmployee(){
+  const sql = `SELECT CONCAT(first_name, " ", last_name) AS name, id AS value FROM employee`;
+  db.promise().query(sql)
+  .then(([employee,fields]) => {
+  inquirer
+    .prompt([  
+      {
+        type: 'list',
+        name: 'role',
+        message: 'Which employee\'s role do you want to update?',
+        choices: employee
+      }
+    ])
+    .then((newEmployee) => {
+      const sql = `SELECT title AS name, id AS value FROM role`;
+      db.promise().query(sql)
+      .then(([role,fields]) => {
+        inquirer
+         .prompt([ 
+         {
+            type: 'list',
+            name: 'manager',
+            message: 'Which role do you want to assign the selected employee?',
+            choices: role
+          }
+        ])
+        .then((updatedRole) => {
+          console.log('Updated employee\'s role');
+          const sql = `UPDATE employee SET role_id = ${updatedRole.manager} WHERE id = ${newEmployee.role}`;
+          db.promise().query(sql)
+        })
+        .then(() => {
+         init();
+        })
+      })
+    })
   });
-}
+};
 
 function viewAllRoles(){
   const sql = `SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON role.department_id = department.id`;
-  db.query(sql, function (err, result, fields){
-    console.table(result);
+  db.promise().query(sql)
+  .then( ([allRoles,fields]) => {
+    console.table(allRoles);
+  })
+  .then(() => {
+    init();
   });
-  init();
 };
 
 function addRole(){
+  const sql = `SELECT name, id AS value FROM department`;
+  db.promise().query(sql)
+  .then( ([depts,fields]) => {
   inquirer
     .prompt([  
       {
@@ -181,83 +204,59 @@ function addRole(){
         type: 'list',
         name: 'dept',
         message: 'Which department does the role belong to?',
-        choices: ['Sales',
-        'Engineering',
-        'Finance',
-        'Legal',
-        'Service']
-        }
+        choices: depts
+      }
     ])
     .then((newRole) => {
-      console.log(`Added ${newRole.title} to the database`);
-      const sql = `INSERT INTO role (title, salary, department_id) VALUES ('${newRole.title}', '${newRole.salary}', 5)`;
-      db.query(sql, function (err, result, fields){
-      });
+      console.log(`Added ${newRole.title} to the database`);    
+      const sql = `INSERT INTO role (title, salary, department_id) VALUES ('${newRole.title}', '${newRole.salary}', '${newRole.dept}')`;
+      db.promise().query(sql)
+    })
+    .then(() => {
+      init();
+    });
+  });
+};
+
+function viewAllDepartments(){
+  const sql = `SELECT id, name AS department FROM department`;
+  db.promise().query(sql)
+  .then( ([allDepts,fields]) => {
+    console.table(allDepts);
+  })
+  .then(() => {
+    init();
+  });
+};
+
+function addDepartment(){
+  inquirer
+    .prompt(  
+      {
+      type: 'input',
+      name: 'department',
+      message: 'What is the name of the department?'
+      })
+    .then((newDepartment) => {
+      console.log(`Added ${newDepartment.department} to the database`);
+      const sql = `INSERT INTO department (name) VALUES ('${newDepartment.department}')`;
+      db.promise().query(sql)
     })
     .then(() => {
       init();
     });
 };
 
-function viewAllDepartments(){
-  const sql = "SELECT id, name AS department FROM department";
-  
-  db.query(sql, function (err, result, fields){
-    // if (err) {
-    //   res.status(500).json({ error: err.message });
-    //    return;
-    // }
-    // res.json({
-    //   message: 'success',
-    //   data: result
-    // });
-    console.table(result);
-  });
-  init();
-};
-
-// function addDepartment(){
-//   inquirer
-//     .prompt(  
-//       {
-//       type: 'input',
-//       name: 'department',
-//       message: 'What is the name of the department?'
-//       })
-//     .then((newDepartment) => {
-//       console.log(`Added ${newDepartment.department} to the database`);
-//     })
-//     .then(() => {
-//       init();
-//     });
-// };
- 
-
-//   // db.connect(function(err) {
-//   //   if (err) throw err;
-//   //   db.query("SELECT * FROM department", function (err, result, fields) {
-//   //     if (err) throw err;
-//   //     console.log(result);
-//   //   });
-//   // });
-//   init(); 
-// };
-
-
-
-
-
-
 function viewAllManagers(){
   const sql = `SELECT e.last_name AS Employee, m.last_name AS Manager FROM employee e JOIN employee m ON e.manager_id = m.id`;
-  db.query(sql, function (err, result, fields){
-
-    console.table(result);
+  db.promise().query(sql)
+  .then( ([allManagers,fields]) => {
+    console.table(allManagers);
+  })
+  .then(() => {
+    init();
   });
-  init();
 };
-
-
 
 // Calls the function init() after the index.js is run in the integrated terminal
 init();
