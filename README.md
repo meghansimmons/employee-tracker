@@ -3,13 +3,18 @@
 ![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## Description
-The application **employee-tracker** allows a user to easily view and interact with information from a database named company_db. Users can manage employees, departments and roles within the database. Users can choose to view or add departments, roles and employess.  Employee roles can also be updated.
+The application **employee-tracker** allows a user to easily view and interact with information from a database named company_db. Users can manage employees, departments and roles within the database. Users can choose to view or add departments, roles and employess.  Employee roles can also be updated. A few screenshots below show the functional menu and a few of the outputs.
+
+<img width="937" alt="employee-tracker-menu" src="https://github.com/meghansimmons/employee-tracker/assets/128755783/4a42f426-7cb5-4b94-a621-3fe6c0014964">
+
+<img width="937" alt="employee-tracker-view" src="https://github.com/meghansimmons/employee-tracker/assets/128755783/8cb554cb-b7f1-459f-8e87-68702c627bef">
 
 Because this application is not deployed, the following walkthrough videos  demonstrate the **employee-tracker** application's functionality:
 
 [employee-tracker: Create company_db and Seed company_db](https://drive.google.com/file/d/1Six1kU4hn1X963Gv4A5N__MzUkTwPNNo/view)
 
 [employee-tracker: View, add, & update: Departments, Roles, and Employees](https://drive.google.com/file/d/1IAdipFMhxhUu9oxwMjVpjX830kDwVGyb/view)
+
 
 
 ## Installation
